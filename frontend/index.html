@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExpressoWay - MVP</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1a1a2e; 
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 16px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #16213e;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 400px;
+        }
+        h1 { text-align: center; color: #e94560; margin-bottom: 5px; }
+        p { text-align: center; font-size: 14px; color: #a9a9a9; margin-bottom: 20px; }
+        label { display: block; margin-top: 10px; font-size: 14px; }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border: 1px solid #0f3460;
+            background-color: #0f3460;
+            color: white;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #e94560;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover { background-color: #ff6b81; }
+        #resultado {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #0f3460;
+            border-radius: 8px;
+            display: none;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .modal-tag {
+            background-color: #e94560;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>ExpressoWay</h1>
+        <p>Planejamento Multimodal Inteligente</p>
+
+        <label>Origem:</label>
+        <input type="text" id="origem" value="São Caetano do Sul" placeholder="Digite a origem">
+
+        <label>Destino:</label>
+        <input type="text" id="destino" value="Estação Luz" placeholder="Digite o destino">
+
+        <button onclick="buscarRota()">Buscar Rota Otimizada</button>
+
+        <div id="resultado"></div>
+    </div>
+
+    <script>
+        // Evita que o texto digitado seja interpretado como HTML ao exibir a rota
+        function escapar(texto) {
+            const div = document.createElement('div');
+            div.textContent = String(texto);
+            return div.innerHTML;
+        }
+
+        async function buscarRota() {
+            const origem = document.getElementById('origem').value;
+            const destino = document.getElementById('destino').value;
+            const divResultado = document.getElementById('resultado');
+
+            divResultado.style.display = 'block';
+            divResultado.innerHTML = 'Calculando melhor rota...';
+
+            try {
+                // Endereço relativo: funciona tanto em localhost quanto no link publicado
+                const response = await fetch('/api/planejar-rota', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ origem, destino })
+                });
+
+                const data = await response.json();
+
+                let html = `<h3 style="color: #e94560; margin-top:0;">Melhor Rota Encontrada:</h3>`;
+                html += `<p style="text-align: left; color: white;"><strong>Tempo Total:</strong> ${data.tempoTotal} | <strong>Custo:</strong> ${data.custoTotal}</p>`;
+                html += `<hr style="border-color: #1a1a2e;">`;
+                
+                data.rota.forEach(trecho => {
+                    html += `<div style="margin-bottom: 8px;">
+                        <span class="modal-tag">${escapar(trecho.modal)}</span>
+                        ${escapar(trecho.trecho)} <em>(${escapar(trecho.tempo)})</em>
+                    </div>`;
+                });
+
+                divResultado.innerHTML = html;
+
+            } catch (error) {
+                divResultado.innerHTML = '<span style="color: #ff6b81;">Erro: Verifique se o servidor Back-end está rodando.</span>';
+            }
+        }
+    </script>
+</body>
+</html>
