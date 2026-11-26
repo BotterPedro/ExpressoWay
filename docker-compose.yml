@@ -1,0 +1,10 @@
+services:
+  expressoway:
+    build: .
+    image: expressoway:1.0
+    container_name: expressoway
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+    restart: unless-stopped

@@ -39,6 +39,16 @@ npm start
 
 Depois, acesse `http://localhost:3000`.
 
+## Como executar com Docker
+
+Pré-requisito: Docker (com Docker Compose).
+
+```bash
+docker compose up -d --build
+```
+
+A aplicação fica disponível em `http://localhost:3000`. Para parar: `docker compose down`.
+
 ## Endpoints da API
 
 | Método | Rota | Descrição |
